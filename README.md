@@ -9,7 +9,13 @@ The benefits:
 - Exporting to other format.
 - Applying dictionary vocabulary.
 
-![Screenshot of Calendar view](screenshot.jpg)
+Calendar View:
+
+![Screenshot of Calendar view](screenshot-1.png)
+
+Browse View:
+
+![Screenshot of Browse view](screenshot-2.png)
 
 ## Usage
 
