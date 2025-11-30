@@ -41,6 +41,85 @@ function fuzzyMatch(text, search) {
   return searchIndex === searchLower.length;
 }
 
+// Storage utilities for settings persistence
+const Storage = {
+  SOURCES_KEY: 'trello_view_sources',
+  
+  getSources() {
+    try {
+      const stored = localStorage.getItem(this.SOURCES_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.error('Failed to load sources from localStorage:', e);
+      return [];
+    }
+  },
+  
+  saveSources(sources) {
+    try {
+      localStorage.setItem(this.SOURCES_KEY, JSON.stringify(sources));
+    } catch (e) {
+      console.error('Failed to save sources to localStorage:', e);
+    }
+  }
+};
+
+// Fetch JSON from ./data/ directory
+async function loadLocalBoard(filename) {
+  try {
+    const response = await fetch(`./data/${filename}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to load ${filename}:`, error);
+    return null;
+  }
+}
+
+// Scan ./data/ directory for *.trello.json files
+async function scanLocalBoards() {
+  try {
+    // Load the index.txt file that lists all board files
+    const indexResponse = await fetch('./data/index.txt');
+    if (!indexResponse.ok) {
+      console.log('No data/index.txt found. Run ./update-data.sh to generate it.');
+      return [];
+    }
+    
+    const indexText = await indexResponse.text();
+    const filenames = indexText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0 && line.endsWith('.trello.json'));
+    
+    if (filenames.length === 0) {
+      console.log('No .trello.json files found in data/index.txt');
+      return [];
+    }
+    
+    const found = [];
+    for (const filename of filenames) {
+      const data = await loadLocalBoard(filename);
+      if (data) {
+        found.push({
+          id: `local_${filename}`,
+          name: data.name || filename.replace('.trello.json', ''),
+          filename: filename,
+          type: 'local',
+          enabled: true,
+          data: data
+        });
+      } else {
+        console.warn(`Failed to load ${filename} - file may not exist`);
+      }
+    }
+    return found;
+  } catch (error) {
+    console.error('Failed to scan local boards:', error);
+    return [];
+  }
+}
+
 // Common icon components
 const Calendar = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -83,5 +162,26 @@ const ExternalLink = ({ size = 24 }) => (
     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
     <polyline points="15 3 21 3 21 9"></polyline>
     <line x1="10" y1="14" x2="21" y2="3"></line>
+  </svg>
+);
+
+const Settings = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M12 1v6m0 6v6m0-6h6m-6 0H6m9.4-6.4l4.2-4.2m-4.2 4.2l-4.2-4.2m4.2 14.8l4.2 4.2m-4.2-4.2l-4.2 4.2"></path>
+  </svg>
+);
+
+const File = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+    <polyline points="13 2 13 9 20 9"></polyline>
+  </svg>
+);
+
+const X = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
   </svg>
 );
