@@ -9,6 +9,8 @@ The benefits:
 - Exporting to other format.
 - Applying dictionary vocabulary.
 
+![Screenshot of Calendar view](screenshot.jpg)
+
 ## Usage
 
 1. Obtain JSON export on Trello:
