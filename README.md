@@ -20,8 +20,12 @@ top right "..." menu;
 "Export as JSON"
 
 2. Very simple. Serve the project locally, let's say on port 7676:
-> htt://localhost:7676
-Upload the JSON file.
+```bash
+$ git clone https://github.com/pendashteh/trello-views.git
+$ cd trello-views
+$ busybox httpd -f -p 7676
+```
+Now, open [http://localhost:7676](http://localhost:7676) and upload the JSON file.
 
 ## Available views
 
@@ -32,6 +36,6 @@ For now, there is only Calendar View available.
 Provide a modular mechanism to add more views and ultimately allow for a marketplace.
 
 ## Credit
-
 Code, not this README, done by Claude Sonnet 4.5
-
+Source available on https://github.com/pendashteh/trello-views
+Copyleft license, no warranty, use as pleased.
